@@ -1,7 +1,6 @@
 services:
-  cam-spy:
+  app:
     build: .
-    container_name: cam-spy
     restart: unless-stopped
     devices:
       - /dev/video0:/dev/video0
