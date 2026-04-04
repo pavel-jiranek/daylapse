@@ -31,9 +31,7 @@ class Settings:
     motion_window_frames: int
     motion_trigger_min_hits: int
     motion_score_threshold: float
-    still_window_frames: int
-    still_trigger_min_hits: int
-    still_score_max: float
+    recording_quiet_seconds: float
     analysis_width: int
     video_codec: str
     image_quality: int
@@ -51,11 +49,9 @@ class Settings:
                 1, _int("MOTION_TRIGGER_MIN_HITS", 3)
             ),
             motion_score_threshold=_float("MOTION_SCORE_THRESHOLD", 0.02),
-            still_window_frames=max(1, _int("STILL_WINDOW_FRAMES", 15)),
-            still_trigger_min_hits=max(
-                1, _int("STILL_TRIGGER_MIN_HITS", 12)
+            recording_quiet_seconds=max(
+                0.0, _float("RECORDING_QUIET_SECONDS", 60.0)
             ),
-            still_score_max=_float("STILL_SCORE_MAX", 0.008),
             analysis_width=max(64, _int("ANALYSIS_WIDTH", 320)),
             video_codec=os.environ.get("VIDEO_CODEC", "libx264"),
             image_quality=max(1, min(100, _int("JPEG_QUALITY", 92))),

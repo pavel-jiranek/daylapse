@@ -48,12 +48,11 @@ class CaptureService:
             window=settings.motion_window_frames,
             trigger_hits=settings.motion_trigger_min_hits,
             motion_threshold=settings.motion_score_threshold,
-            still_window=settings.still_window_frames,
-            still_hits=settings.still_trigger_min_hits,
-            still_max=settings.still_score_max,
             analysis_width=settings.analysis_width,
         )
+        self._recording_quiet_s = settings.recording_quiet_seconds
         self._capturing = False
+        self._last_motion_mono: float = 0.0
         self._current_date: date | None = None
         self._frame_index = 1
         self._last_save_mono: float = 0.0
@@ -128,12 +127,22 @@ class CaptureService:
                 if not self._capturing:
                     if self._gate.should_start_capture():
                         self._capturing = True
+                        self._last_motion_mono = time.monotonic()
                         logger.info("Motion sustained — capturing")
                 else:
                     self._maybe_save(frame, day_dir)
-                    if self._gate.should_stop_capture():
+                    if self._gate.motion_above_threshold():
+                        self._last_motion_mono = time.monotonic()
+                    if (
+                        self._recording_quiet_s > 0
+                        and time.monotonic() - self._last_motion_mono
+                        >= self._recording_quiet_s
+                    ):
                         self._capturing = False
-                        logger.info("Scene still — paused capture")
+                        logger.info(
+                            "No motion for %.0fs — paused capture",
+                            self._recording_quiet_s,
+                        )
 
         finally:
             cap.release()

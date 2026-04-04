@@ -10,11 +10,11 @@ import numpy as np
 
 class MotionGate:
     """
-    Observes per-frame motion scores; reports when to start/stop capture.
+    Observes per-frame motion scores; reports when to start capture.
 
     Motion is detected when at least ``trigger_hits`` of the last ``window`` scores
-    exceed ``motion_threshold``. Capture ends when at least ``still_hits`` of the
-    last ``still_window`` scores fall below ``still_max``.
+    exceed ``motion_threshold``. Per-frame motion for timing uses the latest score
+    against the same threshold (see ``motion_above_threshold``).
     """
 
     def __init__(
@@ -23,20 +23,15 @@ class MotionGate:
         window: int,
         trigger_hits: int,
         motion_threshold: float,
-        still_window: int,
-        still_hits: int,
-        still_max: float,
         analysis_width: int,
     ) -> None:
         self._window = window
         self._trigger_hits = trigger_hits
         self._motion_threshold = motion_threshold
-        self._still_window = still_window
-        self._still_hits = still_hits
-        self._still_max = still_max
         self._analysis_width = analysis_width
         self._prev_gray: np.ndarray | None = None
-        self._scores: deque[float] = deque(maxlen=max(window, still_window))
+        self._last_score: float = 0.0
+        self._scores: deque[float] = deque(maxlen=window)
 
     def _prepare_gray(self, frame: np.ndarray) -> np.ndarray:
         h, w = frame.shape[:2]
@@ -65,7 +60,9 @@ class MotionGate:
         return changed / total if total else 0.0
 
     def update(self, frame: np.ndarray) -> None:
-        self._scores.append(self.score_frame(frame))
+        score = self.score_frame(frame)
+        self._last_score = score
+        self._scores.append(score)
 
     def should_start_capture(self) -> bool:
         if len(self._scores) < self._window:
@@ -74,9 +71,5 @@ class MotionGate:
         hits = sum(1 for s in recent if s >= self._motion_threshold)
         return hits >= self._trigger_hits
 
-    def should_stop_capture(self) -> bool:
-        if len(self._scores) < self._still_window:
-            return False
-        recent = list(self._scores)[-self._still_window :]
-        stills = sum(1 for s in recent if s <= self._still_max)
-        return stills >= self._still_hits
+    def motion_above_threshold(self) -> bool:
+        return self._last_score >= self._motion_threshold
