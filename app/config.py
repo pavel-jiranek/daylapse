@@ -1,0 +1,63 @@
+"""Load settings from environment variables."""
+
+from __future__ import annotations
+
+import os
+from dataclasses import dataclass
+
+
+def _float(name: str, default: float) -> float:
+    raw = os.environ.get(name)
+    if raw is None or raw == "":
+        return default
+    return float(raw)
+
+
+def _int(name: str, default: int) -> int:
+    raw = os.environ.get(name)
+    if raw is None or raw == "":
+        return default
+    return int(raw)
+
+
+@dataclass(frozen=True)
+class Settings:
+    """Runtime configuration (see env vars in docker-compose)."""
+
+    camera_index: int
+    output_dir: str
+    capture_fps: float
+    video_fps: float
+    motion_window_frames: int
+    motion_trigger_min_hits: int
+    motion_score_threshold: float
+    still_window_frames: int
+    still_trigger_min_hits: int
+    still_score_max: float
+    analysis_width: int
+    video_codec: str
+    image_quality: int
+    timezone: str | None
+
+    @staticmethod
+    def from_env() -> "Settings":
+        return Settings(
+            camera_index=_int("CAMERA_INDEX", 0),
+            output_dir=os.environ.get("OUTPUT_DIR", "/data/captures"),
+            capture_fps=_float("CAPTURE_FPS", 2.0),
+            video_fps=_float("VIDEO_FPS", 12.0),
+            motion_window_frames=max(1, _int("MOTION_WINDOW_FRAMES", 5)),
+            motion_trigger_min_hits=max(
+                1, _int("MOTION_TRIGGER_MIN_HITS", 3)
+            ),
+            motion_score_threshold=_float("MOTION_SCORE_THRESHOLD", 0.02),
+            still_window_frames=max(1, _int("STILL_WINDOW_FRAMES", 15)),
+            still_trigger_min_hits=max(
+                1, _int("STILL_TRIGGER_MIN_HITS", 12)
+            ),
+            still_score_max=_float("STILL_SCORE_MAX", 0.008),
+            analysis_width=max(64, _int("ANALYSIS_WIDTH", 320)),
+            video_codec=os.environ.get("VIDEO_CODEC", "libx264"),
+            image_quality=max(1, min(100, _int("JPEG_QUALITY", 92))),
+            timezone=os.environ.get("TZ") or None,
+        )

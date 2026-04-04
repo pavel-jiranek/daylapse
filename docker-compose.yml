@@ -1,0 +1,24 @@
+services:
+  cam-spy:
+    build: .
+    container_name: cam-spy
+    restart: unless-stopped
+    devices:
+      - /dev/video0:/dev/video0
+    volumes:
+      - ./data/captures:/data/captures
+    environment:
+      TZ: ${TZ:-UTC}
+      CAMERA_INDEX: ${CAMERA_INDEX:-0}
+      OUTPUT_DIR: /data/captures
+      CAPTURE_FPS: ${CAPTURE_FPS:-2}
+      VIDEO_FPS: ${VIDEO_FPS:-12}
+      MOTION_WINDOW_FRAMES: ${MOTION_WINDOW_FRAMES:-5}
+      MOTION_TRIGGER_MIN_HITS: ${MOTION_TRIGGER_MIN_HITS:-3}
+      MOTION_SCORE_THRESHOLD: ${MOTION_SCORE_THRESHOLD:-0.02}
+      STILL_WINDOW_FRAMES: ${STILL_WINDOW_FRAMES:-15}
+      STILL_TRIGGER_MIN_HITS: ${STILL_TRIGGER_MIN_HITS:-12}
+      STILL_SCORE_MAX: ${STILL_SCORE_MAX:-0.008}
+      ANALYSIS_WIDTH: ${ANALYSIS_WIDTH:-320}
+      VIDEO_CODEC: ${VIDEO_CODEC:-libx264}
+      JPEG_QUALITY: ${JPEG_QUALITY:-92}
