@@ -19,6 +19,28 @@ from app.motion import MotionGate
 logger = logging.getLogger(__name__)
 
 
+def _open_video_capture(settings: Settings) -> tuple[cv2.VideoCapture, int]:
+    """Open the configured camera, or scan indices 0..max until one works."""
+    if settings.camera_index is not None:
+        cap = cv2.VideoCapture(settings.camera_index)
+        if not cap.isOpened():
+            raise RuntimeError(
+                f"Cannot open camera index {settings.camera_index}"
+            )
+        return cap, settings.camera_index
+    last = settings.camera_index_max
+    for idx in range(0, last + 1):
+        cap = cv2.VideoCapture(idx)
+        if cap.isOpened():
+            logger.info("Using auto-discovered camera index %s", idx)
+            return cap, idx
+        cap.release()
+    raise RuntimeError(
+        f"No camera opened for indices 0..{last} "
+        "(set CAMERA_INDEX or raise CAMERA_INDEX_MAX)"
+    )
+
+
 def _today(tz: ZoneInfo | None) -> date:
     if tz is not None:
         return datetime.now(tz).date()
@@ -146,11 +168,7 @@ class CaptureService:
             logger.error("Failed to write %s", path)
 
     def run(self) -> None:
-        cap = cv2.VideoCapture(self._s.camera_index)
-        if not cap.isOpened():
-            raise RuntimeError(
-                f"Cannot open camera index {self._s.camera_index}"
-            )
+        cap, _ = _open_video_capture(self._s)
 
         try:
             while True:

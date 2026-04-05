@@ -18,9 +18,14 @@ def main() -> None:
         format="%(asctime)s %(levelname)s %(name)s: %(message)s",
     )
     settings = Settings.from_env()
+    cam_log = (
+        "auto"
+        if settings.camera_index is None
+        else str(settings.camera_index)
+    )
     logger.info(
         "Starting capture service (camera=%s, out=%s, cap_fps=%s, video_fps=%s)",
-        settings.camera_index,
+        cam_log,
         settings.output_dir,
         settings.capture_fps,
         settings.video_fps,

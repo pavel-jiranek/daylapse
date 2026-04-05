@@ -24,7 +24,8 @@ def _int(name: str, default: int) -> int:
 class Settings:
     """Runtime configuration (see env vars in docker-compose)."""
 
-    camera_index: int
+    camera_index: int | None
+    camera_index_max: int
     output_dir: str
     capture_fps: float
     video_fps: float
@@ -39,8 +40,20 @@ class Settings:
 
     @staticmethod
     def from_env() -> "Settings":
+        raw_cam = os.environ.get("CAMERA_INDEX")
+        if raw_cam is None:
+            camera_index: int | None = 0
+        else:
+            stripped = raw_cam.strip()
+            if stripped == "":
+                camera_index = 0
+            elif stripped.lower() in ("auto", "none"):
+                camera_index = None
+            else:
+                camera_index = int(stripped)
         return Settings(
-            camera_index=_int("CAMERA_INDEX", 0),
+            camera_index=camera_index,
+            camera_index_max=max(0, _int("CAMERA_INDEX_MAX", 10)),
             output_dir=os.environ.get("OUTPUT_DIR", "./data/captures"),
             capture_fps=_float("CAPTURE_FPS", 2.0),
             video_fps=_float("VIDEO_FPS", 12.0),
