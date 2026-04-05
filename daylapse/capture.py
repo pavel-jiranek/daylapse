@@ -12,9 +12,9 @@ from zoneinfo import ZoneInfo
 import cv2
 import numpy as np
 
-from app.config import Settings
-from app.day_processor import process_day_if_due
-from app.motion import MotionGate
+from daylapse.config import Settings
+from daylapse.day_processor import process_day_if_due
+from daylapse.motion import MotionGate
 
 logger = logging.getLogger(__name__)
 
