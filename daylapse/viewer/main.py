@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import logging
-import os
 from datetime import date
 from pathlib import Path
 
@@ -12,7 +11,7 @@ from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-from daylapse.recorder.config import Settings
+from daylapse.viewer.config import Settings
 from daylapse.viewer.storage import get_day_record, list_recorded_days, media_file_path
 
 logger = logging.getLogger(__name__)
@@ -21,18 +20,10 @@ _HERE = Path(__file__).resolve().parent
 templates = Jinja2Templates(directory=str(_HERE / "templates"))
 
 
-def _viewer_settings() -> tuple[Path, str, int]:
-    s = Settings.from_env()
-    root = Path(s.output_dir).expanduser().resolve()
-    host = os.environ.get("VIEWER_HOST", "127.0.0.1")
-    port = int(os.environ.get("VIEWER_PORT", "8000"))
-    return root, host, port
-
-
 def create_app() -> FastAPI:
-    captures_root, _, _ = _viewer_settings()
+    settings = Settings.from_env()
     app = FastAPI(title="Daylapse viewer", version="0.1.0")
-    app.state.captures_root = captures_root
+    app.state.captures_root = settings.captures_root
 
     static_dir = _HERE / "static"
     if static_dir.is_dir():
@@ -115,12 +106,13 @@ def main() -> None:
     )
     import uvicorn
 
-    root, host, port = _viewer_settings()
-    logger.info("Starting viewer (captures=%s, http://%s:%s)", root, host, port)
+    settings = Settings.from_env()
+    root = settings.captures_root
+    logger.info("Starting viewer (captures=%s, http://%s:%s)", root, settings.host, settings.port)
     uvicorn.run(
         "daylapse.viewer.main:app",
-        host=host,
-        port=port,
+        host=settings.host,
+        port=settings.port,
         factory=False,
         log_level="info",
     )
