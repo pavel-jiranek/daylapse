@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "daylapse"
+version = "0.1.0"
+authors = [{name = "Pavel Jiranek", email = "pavel.jiranek@gmail.com"}]
+description = "Motion-triggered webcam capture service"
+requires-python = ">=3.10"
+dependencies = [
+    "opencv-python-headless>=4.8.0",
+    "numpy>=1.24.0",
+]
+
+[project.scripts]
+daylapse = "daylapse.main:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["daylapse*"]
