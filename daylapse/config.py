@@ -52,11 +52,11 @@ class Settings:
             else:
                 camera_index = int(stripped)
         return Settings(
-            camera_index=camera_index,
+            camera_index=None,
             camera_index_max=max(0, _int("CAMERA_INDEX_MAX", 10)),
             output_dir=os.environ.get("OUTPUT_DIR", "./data/captures"),
-            capture_fps=_float("CAPTURE_FPS", 2.0),
-            video_fps=_float("VIDEO_FPS", 12.0),
+            capture_fps=_float("CAPTURE_FPS", 8.0),
+            video_fps=_float("VIDEO_FPS", 30.0),
             motion_window_frames=max(1, _int("MOTION_WINDOW_FRAMES", 5)),
             motion_trigger_min_hits=max(
                 1, _int("MOTION_TRIGGER_MIN_HITS", 3)
