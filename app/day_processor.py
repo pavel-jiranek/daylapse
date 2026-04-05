@@ -24,7 +24,7 @@ def build_day_video(
     *,
     video_fps: float,
     video_codec: str,
-    output_name: str = "day_summary.mp4",
+    output_name: str = "summary.mp4",
 ) -> bool:
     """
     Encode all JPEGs in ``day_dir`` into a single MP4. Returns True on success.
