@@ -28,3 +28,17 @@ services:
       ANALYSIS_WIDTH: ${ANALYSIS_WIDTH:-320}
       VIDEO_CODEC: ${VIDEO_CODEC:-libx264}
       JPEG_QUALITY: ${JPEG_QUALITY:-92}
+
+  viewer:
+    build: .
+    restart: unless-stopped
+    command: ["daylapse-viewer"]
+    ports:
+      - "${VIEWER_PORT:-8000}:${VIEWER_PORT:-8000}"
+    volumes:
+      - ./data/captures:/data/captures
+    environment:
+      TZ: ${TZ:-UTC}
+      OUTPUT_DIR: /data/captures
+      VIEWER_HOST: ${VIEWER_HOST:-0.0.0.0}
+      VIEWER_PORT: ${VIEWER_PORT:-8000}
