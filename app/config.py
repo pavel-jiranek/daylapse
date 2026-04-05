@@ -41,7 +41,7 @@ class Settings:
     def from_env() -> "Settings":
         return Settings(
             camera_index=_int("CAMERA_INDEX", 0),
-            output_dir=os.environ.get("OUTPUT_DIR", "/data/captures"),
+            output_dir=os.environ.get("OUTPUT_DIR", "./data/captures"),
             capture_fps=_float("CAPTURE_FPS", 2.0),
             video_fps=_float("VIDEO_FPS", 12.0),
             motion_window_frames=max(1, _int("MOTION_WINDOW_FRAMES", 5)),
