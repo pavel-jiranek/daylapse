@@ -25,6 +25,47 @@ def _today(tz: ZoneInfo | None) -> date:
     return datetime.now().astimezone().date()
 
 
+def _draw_timestamp(
+    frame: np.ndarray,
+    tz: ZoneInfo | None,
+) -> np.ndarray:
+    """Return a copy of ``frame`` with date/time burned in (bottom-left)."""
+    out = frame.copy()
+    if tz is not None:
+        now = datetime.now(tz)
+    else:
+        now = datetime.now().astimezone()
+    text = now.strftime("%Y-%m-%d %H:%M:%S %Z")
+
+    font = cv2.FONT_HERSHEY_SIMPLEX
+    h, w = out.shape[:2]
+    font_scale = max(0.45, min(1.15, w / 1280.0))
+    thickness = max(1, int(round(font_scale * 2)))
+    (tw, th), baseline = cv2.getTextSize(text, font, font_scale, thickness)
+    margin = max(8, int(10 * font_scale))
+    pad = max(3, int(4 * font_scale))
+    x = margin
+    y = h - margin - baseline
+    cv2.rectangle(
+        out,
+        (x - pad, y - th - pad),
+        (x + tw + pad, y + baseline + pad),
+        (0, 0, 0),
+        -1,
+    )
+    cv2.putText(
+        out,
+        text,
+        (x, y),
+        font,
+        font_scale,
+        (255, 255, 255),
+        thickness,
+        cv2.LINE_AA,
+    )
+    return out
+
+
 def _next_frame_index(day_dir: Path) -> int:
     best = 0
     if not day_dir.is_dir():
@@ -95,9 +136,10 @@ class CaptureService:
             idx = self._frame_index
             self._frame_index = idx + 1
         path = day_dir / f"{idx:06d}.jpg"
+        stamped = _draw_timestamp(frame, self._tz)
         ok = cv2.imwrite(
             str(path),
-            frame,
+            stamped,
             (cv2.IMWRITE_JPEG_QUALITY, self._s.image_quality),
         )
         if not ok:
