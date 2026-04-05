@@ -6,8 +6,8 @@ import logging
 import signal
 import sys
 
-from daylapse.capture import CaptureService
-from daylapse.config import Settings
+from daylapse.recorder.capture import CaptureService
+from daylapse.recorder.config import Settings
 
 logger = logging.getLogger(__name__)
 

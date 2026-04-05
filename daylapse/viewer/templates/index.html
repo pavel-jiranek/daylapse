@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Daylapse — recordings</title>
+    <link rel="stylesheet" href="/static/style.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Daylapse recordings</h1>
+      <p>{{ captures_root }}</p>
+    </header>
+    <main>
+      {% if days %}
+      <ul class="day-list">
+        {% for d in days %}
+        <li>
+          <a href="/day/{{ d.day.isoformat() }}">
+            <span>{{ d.day.isoformat() }}</span>
+            <span class="badges">
+              {% if d.has_video %}
+              <span class="badge video">summary</span>
+              {% endif %}
+              {% if d.images %}
+              <span class="badge frames">{{ d.images|length }} frames</span>
+              {% endif %}
+            </span>
+          </a>
+        </li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <p class="empty">No days with recordings yet. Once the recorder saves frames or a summary video, they will show up here.</p>
+      {% endif %}
+    </main>
+  </body>
+</html>

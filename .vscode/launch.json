@@ -9,7 +9,26 @@
             "name": "Python Debugger: Current File",
             "type": "debugpy",
             "request": "launch",
-            "program": "daylapse/main.py",
+            "program": "daylapse/recorder/main.py",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Daylapse viewer",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "uvicorn",
+            "args": [
+                "daylapse.viewer.main:app",
+                "--reload",
+                "--host",
+                "127.0.0.1",
+                "--port",
+                "8000"
+            ],
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "OUTPUT_DIR": "${workspaceFolder}/data/captures"
+            },
             "console": "integratedTerminal"
         }
     ]

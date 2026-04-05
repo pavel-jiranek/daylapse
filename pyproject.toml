@@ -11,10 +11,17 @@ requires-python = ">=3.10"
 dependencies = [
     "opencv-python-headless>=4.8.0",
     "numpy>=1.24.0",
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.30.0",
+    "jinja2>=3.1.0",
 ]
 
 [project.scripts]
-daylapse = "daylapse.main:main"
+daylapse-recorder = "daylapse.recorder.main:main"
+daylapse-viewer = "daylapse.viewer.main:main"
+
+[tool.setuptools.package-data]
+"daylapse.viewer" = ["templates/*.html", "static/*.css"]
 
 [tool.setuptools.packages.find]
 where = ["."]
